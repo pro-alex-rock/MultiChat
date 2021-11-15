@@ -12,6 +12,7 @@ import java.util.List;
  */
 public class Server {
     private volatile List<Session> sessions = new ArrayList<>();
+    private final LinkedQueue<String> messages = new LinkedQueue<>();
 
 
     public static void main(String[] args) throws IOException {
@@ -21,11 +22,10 @@ public class Server {
         try (ServerSocket serverSocket = new ServerSocket(3000)) {
             while (true) {
                 try (Socket socket = serverSocket.accept()){
-                    Session session = new Session(socket, sessions);
+                    Session session = new Session(socket, messages, sessions);
+                    session.start();
                     sessions.add(session);
-                    new Thread(session).start();
                 }
-
             }
         }
     }

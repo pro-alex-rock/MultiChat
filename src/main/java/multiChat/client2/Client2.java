@@ -1,4 +1,4 @@
-package multiChat.client1;
+package multiChat.client2;
 
 import java.io.*;
 import java.net.Socket;
@@ -7,7 +7,7 @@ import java.net.Socket;
  * @author Oleksandr Haleta
  * 2021
  */
-public class Client {
+public class Client2 {
     private boolean stopped;
     private String host;
     private int port;
@@ -16,7 +16,7 @@ public class Client {
     private BufferedWriter bufferedWriter;
 
 
-    public Client(String host, int port) throws IOException {
+    public Client2(String host, int port) throws IOException {
         this.host = host;
         this.port = port;
 
@@ -31,8 +31,8 @@ public class Client {
     }
 
     public static void main(String[] args) throws IOException {
-        Client client = new Client("127.0.0.1", 3000);
-        client.getConsoleInput();
+        Client2 client2 = new Client2("127.0.0.1", 3000);
+        client2.getConsoleInput();
     }
 
     private void getConsoleInput() {
@@ -101,46 +101,6 @@ public class Client {
         }
     }
 
-    /*private class MsgSender extends Thread {
-        private final BufferedWriter bufferedWriter;
-
-        public MsgSender(BufferedWriter bufferedWriter) {
-            this.bufferedWriter = bufferedWriter;
-        }
-
-        public void setStop() {
-            stopped = true;
-        }
-        @Override
-        public void run() {
-            *//*try {
-                sendMessage(bufferedWriter, getConsoleInput());
-            } catch (IOException e) {
-            throw new RuntimeException("Unable to write client message. " + e);
-            }*//*
-        }
-
-        *//*public void sendMessage(BufferedWriter bufferedWriter, String clientMsg) throws IOException {
-            if (clientMsg == null) {
-                throw new NullPointerException("You must enter a valid value to send the message.");
-            }
-            bufferedWriter.write(clientMsg + "\r\n");
-            bufferedWriter.flush();
-        }*//*
-
-        *//*private String getConsoleInput() {
-            try (BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in))) {
-                System.out.println("Enter your message:");
-                String input = consoleReader.readLine();
-                if (input.equalsIgnoreCase("exit")) {
-                    setStop();
-                }
-                return input;
-            } catch (IOException e) {
-                throw new RuntimeException("Unable to read console message" + e);
-            }
-        }*//*
-    }*/
 
     public String getHost() {
         return host;
@@ -158,3 +118,5 @@ public class Client {
         this.port = port;
     }
 }
+
+
