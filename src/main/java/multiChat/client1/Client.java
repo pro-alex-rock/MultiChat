@@ -73,9 +73,6 @@ public class Client {
             this.socket = socket;
         }
 
-        public void setStop() {
-            stopped = true;
-        }
         @Override
         public void run() {
             try {
