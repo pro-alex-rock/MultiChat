@@ -25,8 +25,9 @@ public class Session extends Thread {
     }
 
     private void connect() {
-        try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             while (true) {
                 String msg = getClientMsg(bufferedReader);
                 if(msg.equalsIgnoreCase("exit")) {
@@ -36,37 +37,31 @@ public class Session extends Thread {
                 sendToAllRoom(bufferedWriter, messages.dequeue());
             }
 
-        } catch (IOException | InterruptedException e) {}
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
-    private synchronized void sendToAllRoom(BufferedWriter bufferedWriter, String msg) {
+    private void sendToAllRoom(BufferedWriter bufferedWriter, String msg) {
         for (Session session : sessions) {
-            if (this.equals(session)) {
+            /*if (this.equals(session)) {
                 continue;
-            }
+            }*/
             session.sendMsg(bufferedWriter, msg);
         }
     }
 
     private void sendMsg(BufferedWriter bufferedWriter, String msg) {
         try {
-            bufferedWriter.write(msg);
-            bufferedWriter.flush();
+            bufferedWriter.write(msg + "\r\n");
         } catch (IOException e) {
             throw new RuntimeException("Unable write message to clients. " + e);
         }
     }
 
     private String getClientMsg(BufferedReader bufferedReader) throws IOException {
-        StringBuilder builder = new StringBuilder();
-        try {
-            if (bufferedReader.ready()) {
-                builder.append(bufferedReader.readLine());
-            }
-        } catch (IOException e) {
-            throw new IOException("Unable read client message" + e);
-        }
-        return builder.toString();
+        String line = bufferedReader.readLine();
+        return line;
     }
 
     @Override

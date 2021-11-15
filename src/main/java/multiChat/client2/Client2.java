@@ -16,7 +16,7 @@ public class Client2 {
     private BufferedWriter bufferedWriter;
 
 
-    public Client2(String host, int port) throws IOException {
+    public Client2(String host, int port) {
         this.host = host;
         this.port = port;
 
@@ -24,67 +24,24 @@ public class Client2 {
             this.socket = new Socket(host, port);
             bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            new MsgSender().start();
+            new MsgReceiver().start();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        start(socket);
     }
 
     public static void main(String[] args) throws IOException {
-        Client2 client2 = new Client2("127.0.0.1", 3000);
-        client2.getConsoleInput();
-    }
-
-    private void getConsoleInput() {
-        try (BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in))) {
-            System.out.println("Enter your message:");
-            String input = null;
-            while (true) {
-                input = consoleReader.readLine();
-                if (input.equalsIgnoreCase("exit")) {
-                    stopped = true;
-                }
-                sendMessage(input);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to read console message" + e);
-        }
-    }
-
-    public void sendMessage(String clientMsg) throws IOException {
-        if (clientMsg == null) {
-            throw new NullPointerException("You must enter a valid value to send the message.");
-        }
-        bufferedWriter.write(clientMsg + "\r\n");
-        bufferedWriter.flush();
-    }
-
-    private void start(Socket socket) throws IOException {
-        //new MsgSender(bufferedWriter).start();
-        new MsgReceiver(bufferedReader, socket).start();
+        new Client2("127.0.0.1", 3000);
     }
 
     private class MsgReceiver extends Thread {
-        private final BufferedReader bufferedReader;
-        private Socket socket;
 
-        public MsgReceiver(BufferedReader bufferedReader, Socket socket) {
-            this.bufferedReader = bufferedReader;
-            this.socket = socket;
-        }
-
-        public void setStop() {
-            stopped = true;
-        }
         @Override
         public void run() {
             try {
-                BufferedReader thisReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 while (!stopped) {
-                    String str = getServerMsg(thisReader);
-                    if (str.equals("")) {
-                        continue;
-                    }
+                    String str = getServerMsg(bufferedReader);
                     System.out.println(str);
                 }
             } catch (IOException e) {
@@ -92,12 +49,48 @@ public class Client2 {
             }
         }
 
-        private synchronized String getServerMsg(BufferedReader bufferedReader) throws IOException {
+        private String getServerMsg(BufferedReader bufferedReader) throws IOException {
             StringBuilder stringBuilder = new StringBuilder();
-            if (bufferedReader.ready()) {
-                stringBuilder.append(bufferedReader.readLine());
+            String line = null;
+            if ((line = bufferedReader.readLine()) != null) {
+                stringBuilder.append(line);
             }
             return stringBuilder.toString();
+        }
+    }
+
+    private class MsgSender extends Thread {
+
+        public void setStop() {
+            stopped = true;
+        }
+        @Override
+        public void run() {
+            try {
+                sendMessage(bufferedWriter, getConsoleInput());
+            } catch (IOException e) {
+                throw new RuntimeException("Unable to write client message. " + e);
+            }
+        }
+
+        public void sendMessage(BufferedWriter bufferedWriter, String clientMsg) throws IOException {
+            if (clientMsg == null) {
+                throw new NullPointerException("You must enter a valid value to send the message.");
+            }
+            bufferedWriter.write(clientMsg + "\r\n");
+        }
+
+        private String getConsoleInput() {
+            try (BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in))) {
+                System.out.println("Enter your message:");
+                String input = consoleReader.readLine();
+                if (input.equalsIgnoreCase("exit")) {
+                    setStop();
+                }
+                return input;
+            } catch (IOException e) {
+                throw new RuntimeException("Unable to read console message" + e);
+            }
         }
     }
 

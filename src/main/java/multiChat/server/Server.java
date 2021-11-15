@@ -21,10 +21,13 @@ public class Server {
     public void openChannel() throws IOException {
         try (ServerSocket serverSocket = new ServerSocket(3000)) {
             while (true) {
-                try (Socket socket = serverSocket.accept()){
+                try {
+                    Socket socket = serverSocket.accept();
                     Session session = new Session(socket, messages, sessions);
-                    session.start();
                     sessions.add(session);
+                    session.start();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         }
