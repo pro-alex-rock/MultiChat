@@ -69,7 +69,7 @@ public class Session extends Thread {
         if (this == o) return true;
         if (!(o instanceof Session)) return false;
         Session session = (Session) o;
-        return socket.equals(session.socket);
+        return socket.getPort() == session.socket.getPort();
     }
 
     @Override
