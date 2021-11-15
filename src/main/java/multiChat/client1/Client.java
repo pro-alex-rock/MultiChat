@@ -53,9 +53,6 @@ public class Client {
             this.bufferedReader = bufferedReader;
         }
 
-        public void setStop() {
-            stopped = true;
-        }
         @Override
         public void run() {
             try {
