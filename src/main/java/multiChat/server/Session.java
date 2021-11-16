@@ -11,13 +11,9 @@ import java.util.Objects;
  */
 public class Session extends Thread {
     private final Socket socket;
-    private final LinkedQueue<String> messages;
-    private List<Session> sessions;
 
-    public Session(Socket socketClient, LinkedQueue<String> messages, List<Session> sessions) {
+    public Session(Socket socketClient) {
         this.socket = socketClient;
-        this.messages = messages;
-        this.sessions = sessions;
     }
 
     public void run() {
@@ -33,8 +29,8 @@ public class Session extends Thread {
                 if(msg.equalsIgnoreCase("exit")) {
                     break;
                 }
-                messages.enqueue(msg);
-                sendToAllRoom(bufferedWriter, messages.dequeue());
+                Server.messages.addMsg(msg);
+                sendToAllRoom(bufferedWriter, Server.messages.getMsg());
             }
 
         } catch (IOException | InterruptedException e) {
@@ -43,11 +39,13 @@ public class Session extends Thread {
     }
 
     private void sendToAllRoom(BufferedWriter bufferedWriter, String msg) {
-        for (Session session : sessions) {
+        while (Server.sessions.size() > 0) {
+        for (Session session : Server.sessions) {
             /*if (this.equals(session)) {
                 continue;
             }*/
             session.sendMsg(bufferedWriter, msg);
+        }
         }
     }
 

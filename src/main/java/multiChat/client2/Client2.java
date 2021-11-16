@@ -31,7 +31,7 @@ public class Client2 {
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         new Client2("127.0.0.1", 3000);
     }
 
@@ -41,7 +41,7 @@ public class Client2 {
         public void run() {
             try {
                 while (!stopped) {
-                    String str = getServerMsg(bufferedReader);
+                    String str = getServerMsg();
                     System.out.println(str);
                 }
             } catch (IOException e) {
@@ -49,7 +49,7 @@ public class Client2 {
             }
         }
 
-        private String getServerMsg(BufferedReader bufferedReader) throws IOException {
+        private String getServerMsg() throws IOException {
             StringBuilder stringBuilder = new StringBuilder();
             String line = null;
             if ((line = bufferedReader.readLine()) != null) {
